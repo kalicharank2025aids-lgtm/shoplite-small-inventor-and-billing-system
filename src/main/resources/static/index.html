@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopLite</title>
+<style>
+  :root { --bg:#eef4f1; --surface:#fff; --ink:#172b25; --mut:#63766f; --pri:#087b67; --pri-dark:#075d50; --lime:#d8ed83; --coral:#e7835e; --bad:#b8443d; --line:#dce7e1; --wash:#f5f8f6; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Trebuchet MS", "Segoe UI", sans-serif; background:radial-gradient(ellipse at 88% 0%,#d9ebe2 0,transparent 34%),var(--bg); color:var(--ink); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:18px max(24px,calc((100vw - 1320px)/2)); background:var(--ink); color:#fff; }
+  .brand { display:flex; align-items:center; gap:12px; font-weight:700; font-size:18px; }
+  .brand-mark { display:grid; place-items:center; width:36px; height:36px; background:var(--lime); color:var(--ink); border-radius:10px; font-size:18px; }
+  .top-note { color:#c6d8d0; font-size:12px; letter-spacing:1px; text-transform:uppercase; }
+  nav { display:flex; gap:22px; padding:0 max(24px,calc((100vw - 1320px)/2)); background:var(--ink); flex-wrap:wrap; }
+  nav button { border:0; border-bottom:3px solid transparent; background:none; color:#b7c9c1; padding:12px 2px 15px; cursor:pointer; font-size:14px; }
+  nav button:hover, nav button.on { color:#fff; border-bottom-color:var(--lime); }
+  main { max-width:1320px; background:var(--surface); margin:28px auto 44px; padding:clamp(20px,4vw,44px); border:1px solid #e3ece7; border-radius:14px; min-height:65vh; box-shadow:0 18px 50px #203e3010; }
+  h1,h2,h3 { font-family:Georgia,"Times New Roman",serif; letter-spacing:0; }
+  h1 { font-size:clamp(32px,5vw,48px); line-height:1.06; margin:8px 0 10px; }
+  h3 { font-size:23px; margin:0 0 8px; }
+  p { color:var(--mut); }
+  table { width:100%; border-collapse:collapse; margin-top:14px; }
+  th,td { text-align:left; padding:13px 12px; border-bottom:1px solid var(--line); font-size:14px; }
+  th { color:var(--mut); font-size:11px; letter-spacing:1px; text-transform:uppercase; background:var(--wash); }
+  input,select { width:100%; min-height:44px; padding:10px 12px; border:1px solid #cad9d1; border-radius:7px; background:#fff; color:var(--ink); font:inherit; }
+  input:focus,select:focus { outline:3px solid #087b6724; border-color:var(--pri); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .btn { background:var(--pri); color:#fff; border:0; padding:11px 16px; border-radius:7px; cursor:pointer; font:600 14px "Trebuchet MS","Segoe UI",sans-serif; transition:background .15s,transform .15s; }
+  .btn:hover { background:var(--pri-dark); transform:translateY(-1px); }
+  .btn.sec { background:#eaf1ed; color:var(--ink); }
+  .btn.sec:hover { background:#dce9e1; }
+  #msg { max-width:1320px; margin:14px auto -14px; padding:12px 16px; border-radius:7px; display:none; font-size:14px; }
+  #msg.ok { display:block; background:#dcfce7; color:#166534; }
+  #msg.err { display:block; background:#fff0ed; color:var(--bad); }
+  .low { color:var(--bad); font-weight:600; }
+  .big { font:700 32px Georgia,serif; color:var(--pri); margin:12px 0; }
+  .eyebrow { margin:0; color:var(--pri); font-size:11px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase; }
+  .page-head { display:flex; align-items:flex-end; justify-content:space-between; gap:28px; padding:4px 0 30px; border-bottom:1px solid var(--line); }
+  .page-head p:last-child { margin-bottom:0; }
+  .stats { display:flex; gap:28px; padding:0 0 4px; }
+  .stat { display:grid; gap:3px; min-width:85px; }
+  .stat strong { font:700 26px Georgia,serif; }
+  .stat span { color:var(--mut); font-size:12px; }
+  .tools { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr); gap:28px; padding:26px 0; border-bottom:1px solid var(--line); }
+  .section-label { display:block; margin-bottom:9px; font-size:12px; font-weight:700; }
+  .fields { display:grid; grid-template-columns:minmax(120px,2fr) repeat(4,minmax(90px,1fr)) auto; gap:8px; }
+  .search-wrap { position:relative; }
+  .search-input { padding-left:40px; background:#fbfdfb; }
+  .search-icon { position:absolute; top:12px; left:14px; color:var(--mut); pointer-events:none; }
+  .suggestions { position:absolute; z-index:5; top:calc(100% + 6px); left:0; right:0; max-height:320px; overflow:auto; padding:5px; margin:0; list-style:none; border:1px solid var(--line); border-radius:9px; background:#fff; box-shadow:0 16px 35px #172b2522; }
+  .suggestions[hidden] { display:none; }
+  .suggestion { display:flex; width:100%; gap:11px; align-items:center; padding:10px; border:0; border-radius:6px; background:#fff; text-align:left; color:var(--ink); cursor:pointer; }
+  .suggestion:hover,.suggestion.active { background:var(--wash); }
+  .suggestion-mark { display:grid; place-items:center; flex:0 0 36px; height:36px; border-radius:8px; background:#e0f1e9; color:var(--pri-dark); font-weight:700; }
+  .suggestion-copy { display:grid; gap:3px; min-width:0; }
+  .suggestion-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+  .suggestion-meta { color:var(--mut); font-size:12px; }
+  .table-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-top:26px; }
+  .table-head p { margin:0; font-size:13px; }
+  .billing-search { max-width:560px; margin:20px 0 18px; }
+  .empty { padding:28px 12px; color:var(--mut); text-align:center; }
+  .actions { display:flex; gap:6px; white-space:nowrap; }
+  .filterbar { display:flex; flex-wrap:wrap; gap:10px; padding:16px 0 4px; }
+  .filterbar select { width:auto; min-width:170px; }
+  .status { display:inline-flex; align-items:center; padding:6px 9px; border-radius:5px; background:#e8f4ec; color:#276442; font-size:11px; font-weight:700; white-space:nowrap; }
+  .status.low-status { background:#fff0ed; color:#a4322c; }
+  .dashboard-title { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
+  .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:26px 0 34px; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .metric { padding:20px; background:linear-gradient(145deg,#fff,#f5f8f6); border-right:1px solid var(--line); }
+  .metric:last-child { border-right:0; }
+  .metric strong { display:block; margin-bottom:7px; font:700 30px Georgia,serif; }
+  .metric span { color:var(--mut); font-size:12px; }
+  .dashboard-section { padding-top:4px; }
+  .dashboard-section .table-head { margin-top:0; }
+  .unit-price { color:var(--mut); font-size:13px; }
+  .bill-total { display:flex; justify-content:flex-end; gap:40px; padding:16px 12px; border-top:1px solid var(--line); font-weight:700; }
+  .bill-total strong { font:700 24px Georgia,serif; color:var(--pri); }
+  @media (max-width:760px) {
+    header { padding:14px 18px; }
+    .top-note { display:none; }
+    nav { gap:15px; padding:0 18px; }
+    nav button { font-size:13px; }
+    main { margin:16px 10px 24px; padding:20px 16px; }
+    #msg { margin:12px 10px -8px; }
+    .page-head { align-items:flex-start; flex-direction:column; gap:18px; }
+    .stats { gap:20px; }
+    .tools { grid-template-columns:1fr; gap:20px; }
+    .fields { grid-template-columns:1fr 1fr; }
+    .fields input:first-child { grid-column:1/-1; }
+    .fields select:first-of-type { grid-column:1/-1; }
+    .fields button { grid-column:1/-1; }
+    .metric-grid { grid-template-columns:1fr 1fr; }
+    .metric:nth-child(2) { border-right:0; }
+    .metric:nth-child(-n+2) { border-bottom:1px solid var(--line); }
+    .filterbar select { flex:1 1 145px; min-width:0; }
+    .dashboard-title { align-items:flex-start; flex-direction:column; }
+    table { display:block; overflow-x:auto; white-space:nowrap; }
+  }
+</style>
+</head>
+<body>
+<header><div class="brand"><span class="brand-mark">S</span><span>ShopLite</span></div><span class="top-note">Inventory &amp; checkout</span></header>
+<nav id="tabs">
+  <button data-t="dashboard" class="on">Dashboard</button>
+  <button data-t="products">Products</button>
+  <button data-t="bill">New Bill</button>
+  <button data-t="bills">Bills</button>
+  <button data-t="low">Reorder Alerts</button>
+  <button data-t="sales">Daily Sales</button>
+</nav>
+<div id="msg"></div>
+<main id="view"></main>
+
+<script>
+const $ = s => document.querySelector(s);
+const view = $('#view');
+let products = [], cart = [];
+let inventoryMatches = [], inventoryActive = -1, billMatches = [], billActive = -1, selectedProductId = null;
+
+async function api(url, method = 'GET', body) {
+  const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+function say(text, ok = true) {
+  const m = $('#msg'); m.textContent = text; m.className = ok ? 'ok' : 'err';
+  setTimeout(() => m.className = '', 5000);
+}
+const money = n => '₹' + Number(n).toFixed(2);
+const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on'); show(b.dataset.t);
+});
+function show(t) { ({dashboard:pageDashboard, products:pageProducts, bill:pageBill, bills:pageBills, low:pageLow, sales:pageSales})[t](); }
+
+// ---------- Dashboard ----------
+async function pageDashboard() {
+  const data = await api('/api/dashboard');
+  const alerts = data.lowStockProducts;
+  view.innerHTML = `<section class="dashboard-title"><div><p class="eyebrow">Shop overview / ${new Date().toLocaleDateString('en-IN')}</p>
+    <h1>Your shop, at a glance.</h1><p>Inventory health and today's trading in one place.</p></div>
+    <button class="btn" onclick="activateTab('products')">Manage products</button></section>
+  <section class="metric-grid"><div class="metric"><strong>${data.totalProducts}</strong><span>Total products</span></div>
+    <div class="metric"><strong>${data.totalCategories}</strong><span>Total categories</span></div>
+    <div class="metric"><strong>${data.lowStockCount}</strong><span>Low stock products</span></div>
+    <div class="metric"><strong>${money(data.todaySales)}</strong><span>Today's sales · ${data.todayBills} bills</span></div></section>
+  <section class="dashboard-section"><div class="table-head"><h3>Low stock products</h3><p>${alerts.length} reorder ${alerts.length === 1 ? 'alert' : 'alerts'}</p></div>
+    ${alerts.length ? `<table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Reorder at</th><th>Status</th></tr></thead><tbody>
+      ${alerts.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category)}</td><td class="low">${p.stockQuantity} ${escapeHtml(p.unit)}</td>
+        <td>${p.reorderThreshold} ${escapeHtml(p.unit)}</td><td><span class="status low-status">⚠ LOW STOCK · REORDER REQUIRED</span></td></tr>`).join('')}</tbody></table>`
+      : '<p class="empty">All products are above their reorder thresholds.</p>'}</section>`;
+}
+function activateTab(tab) {
+  document.querySelectorAll('#tabs button').forEach(button => button.classList.toggle('on', button.dataset.t === tab));
+  show(tab);
+}
+
+// ---------- Products ----------
+async function pageProducts(editId) {
+  products = await api('/api/products');
+  const e = products.find(p => p.id === editId) || {};
+  const totalUnits = products.reduce((sum, p) => sum + p.stockQuantity, 0);
+  const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const categoryOptions = [...new Set([...categories, 'Rice & Grains', 'Pulses & Dal', 'Cooking Oil & Ghee', 'Spices & Masala', 'Sugar, Salt & Sweeteners', 'Biscuits & Snacks', 'Beverages', 'Dairy & Refrigerated'])].sort((a, b) => a.localeCompare(b));
+  view.innerHTML = `<section class="page-head"><div><p class="eyebrow">Stockroom / live</p><h1>Inventory, in good order.</h1>
+    <p>Keep your shelves current and find an item in a few keystrokes.</p></div>
+    <div class="stats"><div class="stat"><strong>${products.length}</strong><span>Products</span></div>
+      <div class="stat"><strong>${totalUnits}</strong><span>Units in stock</span></div></div></section>
+  <section class="tools"><div><span class="section-label">${editId ? 'Update product #' + editId : 'Add to inventory'}</span>
+    <div class="fields"><input id="pn" placeholder="Product name" value="${escapeHtml(e.name || '')}">
+      <select id="pc" aria-label="Category">${categoryOptions.map(category => `<option value="${escapeHtml(category)}" ${e.category === category ? 'selected' : ''}>${escapeHtml(category)}</option>`).join('')}</select>
+      <input id="pp" type="number" step="0.01" placeholder="Price" value="${e.price ?? ''}">
+      <input id="ps" type="number" placeholder="Stock" value="${e.stockQuantity ?? ''}">
+      <input id="pt" type="number" min="5" max="20" placeholder="Reorder at" value="${e.reorderThreshold ?? ''}">
+      <input id="pu" placeholder="Unit (kg, pack...)" value="${escapeHtml(e.unit || '')}">
+      <button class="btn" onclick="saveProduct(${editId || 'null'})">${editId ? 'Save' : 'Add product'}</button></div>
+    ${editId ? '<button class="btn sec" style="margin-top:8px" onclick="pageProducts()">Cancel edit</button>' : ''}</div>
+    <div><label class="section-label" for="inventory-search">Find a product</label><div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">⌕</span><input class="search-input" id="inventory-search" role="combobox" aria-autocomplete="list" aria-controls="inventory-suggestions" aria-expanded="false" placeholder="Try “y” or “cable”" oninput="searchInventory(this.value)" onkeydown="handleInventoryKey(event)" autocomplete="off">
+      <ul class="suggestions" id="inventory-suggestions" role="listbox" hidden></ul></div></div></section>
+  <div class="table-head"><h3>All products</h3><p id="product-count">${products.length} items</p></div>
+  <div class="filterbar"><select id="category-filter" aria-label="Filter by category" onchange="renderProductRows()"><option value="">All categories</option>
+    ${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('')}</select>
+    <select id="stock-filter" aria-label="Filter by stock status" onchange="renderProductRows()"><option value="">All stock statuses</option><option value="available">Available</option><option value="low">Low stock</option></select>
+    <select id="sort-filter" aria-label="Sort products" onchange="renderProductRows()"><option value="name">Sort: Name</option><option value="price-asc">Price: Low to high</option><option value="price-desc">Price: High to low</option><option value="stock-asc">Stock: Low to high</option><option value="stock-desc">Stock: High to low</option></select></div>
+  <table><thead><tr><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Unit</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="product-rows"></tbody></table>`;
+  renderProductRows();
+}
+function renderProductRows(query = $('#inventory-search')?.value || '') {
+  const normalized = query.trim().toLowerCase();
+  const category = $('#category-filter')?.value || '';
+  const stockStatus = $('#stock-filter')?.value || '';
+  const sort = $('#sort-filter')?.value || 'name';
+  const matches = products.filter(p => p.name.toLowerCase().includes(normalized)
+    && (!category || p.category === category)
+    && (!stockStatus || (stockStatus === 'low') === (p.stockQuantity < p.reorderThreshold)));
+  matches.sort((a, b) => {
+    if (sort === 'price-asc') return a.price - b.price;
+    if (sort === 'price-desc') return b.price - a.price;
+    if (sort === 'stock-asc') return a.stockQuantity - b.stockQuantity;
+    if (sort === 'stock-desc') return b.stockQuantity - a.stockQuantity;
+    return a.name.localeCompare(b.name);
+  });
+  const rows = $('#product-rows');
+  if (!rows) return;
+  rows.innerHTML = matches.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category)}</td><td>${money(p.price)}</td>
+    <td>${p.stockQuantity}</td><td>${escapeHtml(p.unit)}</td><td><span class="status ${p.stockQuantity < p.reorderThreshold ? 'low-status' : ''}">${p.stockQuantity < p.reorderThreshold ? '⚠ LOW STOCK · REORDER REQUIRED' : 'Available'}</span></td>
+    <td class="actions"><button class="btn sec" onclick="pageProducts(${p.id})">Edit</button>
+    <button class="btn sec" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('') || '<tr><td class="empty" colspan="7">No products match those filters.</td></tr>';
+  $('#product-count').textContent = `${matches.length} ${matches.length === 1 ? 'item' : 'items'}`;
+}
+function searchInventory(query) {
+  const menu = $('#inventory-suggestions');
+  inventoryMatches = query.trim() ? products.filter(p => p.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 6) : [];
+  inventoryActive = -1;
+  menu.innerHTML = inventoryMatches.map(p => `<li role="presentation"><button class="suggestion" role="option" aria-selected="false" onclick="chooseInventorySuggestion(${p.id})"><span class="suggestion-mark">${escapeHtml(p.name.charAt(0).toUpperCase())}</span><span class="suggestion-copy"><span class="suggestion-name">${escapeHtml(p.name)}</span><span class="suggestion-meta">${escapeHtml(p.category)} · ${money(p.price)} / ${escapeHtml(p.unit)} · ${p.stockQuantity} in stock</span></span></button></li>`).join('');
+  menu.hidden = inventoryMatches.length === 0;
+  $('#inventory-search').setAttribute('aria-expanded', String(!menu.hidden));
+  renderProductRows(query);
+}
+function chooseInventorySuggestion(id) {
+  const product = products.find(p => p.id === id);
+  $('#inventory-search').value = product?.name || '';
+  $('#inventory-suggestions').hidden = true;
+  $('#inventory-search').setAttribute('aria-expanded', 'false');
+  renderProductRows();
+}
+function handleInventoryKey(event) {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (!inventoryMatches.length) return;
+    event.preventDefault();
+    inventoryActive = (inventoryActive + (event.key === 'ArrowDown' ? 1 : inventoryMatches.length - 1)) % inventoryMatches.length;
+    $('#inventory-suggestions').querySelectorAll('.suggestion').forEach((item, i) => item.classList.toggle('active', i === inventoryActive));
+  } else if (event.key === 'Enter' && inventoryActive >= 0) {
+    event.preventDefault(); chooseInventorySuggestion(inventoryMatches[inventoryActive].id);
+  } else if (event.key === 'Escape') {
+    $('#inventory-suggestions').hidden = true;
+    $('#inventory-search').setAttribute('aria-expanded', 'false');
+  }
+}
+async function saveProduct(id) {
+  try {
+    const body = { name:$('#pn').value, category:$('#pc').value, price:$('#pp').value, stockQuantity:$('#ps').value, reorderThreshold:$('#pt').value, unit:$('#pu').value };
+    await api(id ? '/api/products/' + id : '/api/products', id ? 'PUT' : 'POST', body);
+    say('Product saved'); pageProducts();
+  } catch (e) { say(e.message, false); }
+}
+async function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  try { await api('/api/products/' + id, 'DELETE'); say('Product deleted'); pageProducts(); }
+  catch (e) { say(e.message, false); }
+}
+
+// ---------- Billing ----------
+async function pageBill(editId) {
+  products = await api('/api/products');
+  const bill = editId ? await api('/api/bills/' + editId) : null;
+  cart = bill ? bill.items.map(item => ({ productId:item.product.id, quantity:item.quantity })) : [];
+  selectedProductId = null; billMatches = []; billActive = -1;
+  view.innerHTML = `<section class="page-head"><div><p class="eyebrow">Checkout / ${editId ? 'draft #' + editId : 'new sale'}</p>
+    <h1>${editId ? 'Finish this draft.' : 'Build a new bill.'}</h1><p>Search the catalog, add items, then save a draft or finalize the sale.</p></div>
+    <div class="stat"><strong>${products.length}</strong><span>Products available</span></div></section>
+  <div class="billing-search"><label class="section-label" for="bill-search">Search products</label><div class="search-wrap">
+    <span class="search-icon" aria-hidden="true">⌕</span><input class="search-input" id="bill-search" role="combobox" aria-autocomplete="list" aria-controls="bill-suggestions" aria-expanded="false" placeholder="Start typing a product name..." oninput="searchBillProducts(this.value)" onkeydown="handleBillKey(event)" autocomplete="off">
+    <ul class="suggestions" id="bill-suggestions" role="listbox" hidden></ul></div>
+    <div class="row" style="margin-top:10px"><input id="bq" type="number" min="1" value="1" aria-label="Quantity" style="max-width:110px">
+    <button class="btn" onclick="addLine()">Add selected item</button></div></div>
+  <div id="cart"></div>
+  <button class="btn sec" onclick="saveDraft(${editId || 'null'})">${editId ? 'Save changes' : 'Save draft'}</button>
+  <button class="btn" onclick="saveDraft(${editId || 'null'}, true)">Finalize bill</button>
+  <button class="btn sec" onclick="pageBills()">Cancel</button>`;
+  drawCart();
+}
+function searchBillProducts(query) {
+  selectedProductId = null;
+  const menu = $('#bill-suggestions');
+  billMatches = query.trim() ? products.filter(p => p.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 7) : [];
+  billActive = -1;
+  menu.innerHTML = billMatches.length ? billMatches.map(p => `<li role="presentation"><button class="suggestion" role="option" aria-selected="false" onclick="chooseBillSuggestion(${p.id})"><span class="suggestion-mark">${escapeHtml(p.name.charAt(0).toUpperCase())}</span><span class="suggestion-copy"><span class="suggestion-name">${escapeHtml(p.name)}</span><span class="suggestion-meta">${escapeHtml(p.category)} · ${money(p.price)} / ${escapeHtml(p.unit)} · ${p.stockQuantity} in stock</span></span></button></li>`).join('') : (query.trim() ? '<li class="empty">No matching products</li>' : '');
+  menu.hidden = !query.trim();
+  $('#bill-search').setAttribute('aria-expanded', String(!menu.hidden));
+}
+function chooseBillSuggestion(id) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+  selectedProductId = product.id;
+  $('#bill-search').value = product.name;
+  $('#bill-suggestions').hidden = true;
+  $('#bill-search').setAttribute('aria-expanded', 'false');
+  $('#bq').focus();
+}
+function handleBillKey(event) {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (!billMatches.length) return;
+    event.preventDefault();
+    billActive = (billActive + (event.key === 'ArrowDown' ? 1 : billMatches.length - 1)) % billMatches.length;
+    $('#bill-suggestions').querySelectorAll('.suggestion').forEach((item, i) => item.classList.toggle('active', i === billActive));
+  } else if (event.key === 'Enter' && billActive >= 0) {
+    event.preventDefault(); chooseBillSuggestion(billMatches[billActive].id);
+  } else if (event.key === 'Escape') {
+    $('#bill-suggestions').hidden = true;
+    $('#bill-search').setAttribute('aria-expanded', 'false');
+  }
+}
+function addLine() {
+  const id = selectedProductId, q = +$('#bq').value;
+  if (!id || q < 1) return say('Choose a product suggestion and enter a quantity of at least 1', false);
+  const product = products.find(p => p.id === id);
+  const alreadyAdded = cart.filter(line => line.productId === id).reduce((sum, line) => sum + line.quantity, 0);
+  if (q + alreadyAdded > product.stockQuantity) {
+    return say(`Only ${product.stockQuantity - alreadyAdded} ${product.unit} of ${product.name} remain available`, false);
+  }
+  const line = cart.find(item => item.productId === id);
+  if (line) line.quantity += q;
+  else cart.push({ productId:id, quantity:q });
+  drawCart();
+  selectedProductId = null;
+  $('#bill-search').value = '';
+  $('#bill-search').focus();
+}
+function drawCart() {
+  let total = 0;
+  const rows = cart.map((l, i) => {
+    const p = products.find(x => x.id === l.productId), t = p.price * l.quantity; total += t;
+    return `<tr><td>${escapeHtml(p.name)}</td><td>${l.quantity} ${escapeHtml(p.unit)} × ${money(p.price)} / ${escapeHtml(p.unit)}</td><td>${money(t)}</td><td><button class="btn sec" aria-label="Remove ${escapeHtml(p.name)}" onclick="cart.splice(${i},1);drawCart()">Remove</button></td></tr>`;
+  }).join('');
+  $('#cart').innerHTML = cart.length ? `<table><tr><th>Product</th><th>Quantity × unit price</th><th>Line total</th><th></th></tr>${rows}</table>
+    <div class="bill-total"><span>Subtotal<br><strong>${money(total)}</strong></span><span>Grand total<br><strong>${money(total)}</strong></span></div>` : '<p style="color:var(--mut)">No items yet.</p>';
+}
+async function saveDraft(id, finalize = false) {
+  try {
+    const bill = await api(id ? '/api/bills/' + id : '/api/bills', id ? 'PUT' : 'POST', { items: cart });
+    if (finalize) {
+      const done = await api('/api/bills/' + bill.id + '/finalize', 'POST');
+      say(`Bill #${done.id} finalized · ${money(done.totalAmount)}`);
+    } else {
+      say(id ? 'Draft bill updated' : 'Draft bill created');
+    }
+    pageBills();
+  } catch (e) { say(e.message, false); }
+}
+
+async function pageBills() {
+  const bills = await api('/api/bills');
+  view.innerHTML = `<h3>Bills</h3><table><tr><th>ID</th><th>Created</th><th>Status</th><th>Total</th><th></th></tr>
+    ${bills.map(b => `<tr><td>${b.id}</td><td>${new Date(b.createdAt).toLocaleString()}</td><td>${b.status}</td>
+      <td>${money(b.totalAmount)}</td><td>${b.status === 'DRAFT'
+        ? `<button class="btn sec" onclick="pageBill(${b.id})">Edit</button>
+          <button class="btn sec" onclick="finalizeBill(${b.id})">Finalize</button>
+          <button class="btn sec" onclick="deleteBill(${b.id})">Delete</button>`
+        : 'Finalized'}</td></tr>`).join('')}</table>`;
+}
+async function finalizeBill(id) {
+  try {
+    const done = await api('/api/bills/' + id + '/finalize', 'POST');
+    say(`Bill #${done.id} finalized — total ${money(done.totalAmount)}`); pageBills();
+  } catch (e) { say(e.message, false); }
+}
+async function deleteBill(id) {
+  if (!confirm('Delete this draft bill?')) return;
+  try { await api('/api/bills/' + id, 'DELETE'); say('Draft bill deleted'); pageBills(); }
+  catch (e) { say(e.message, false); }
+}
+
+// ---------- Reorder alerts ----------
+async function pageLow() {
+  const list = await api('/api/products/low-stock');
+  view.innerHTML = `<section class="page-head"><div><p class="eyebrow">Inventory / action required</p><h1>Reorder alerts.</h1><p>Products below their configured stock threshold.</p></div><div class="stat"><strong>${list.length}</strong><span>Items to reorder</span></div></section>` + (list.length
+    ? `<table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Threshold</th><th>Status</th></tr></thead><tbody>${list.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.category)}</td><td class="low">${p.stockQuantity} ${escapeHtml(p.unit)}</td><td>${p.reorderThreshold} ${escapeHtml(p.unit)}</td><td><span class="status low-status">⚠ LOW STOCK · REORDER REQUIRED</span></td></tr>`).join('')}</tbody></table>`
+    : '<p>All products are sufficiently stocked 👍</p>');
+}
+
+// ---------- Daily sales ----------
+async function pageSales() {
+  view.innerHTML = `<h3>Total sales for a day</h3>
+  <div class="row"><input id="sd" type="date" value="${new Date().toLocaleDateString('en-CA')}">
+  <button class="btn" onclick="loadSales()">View</button></div><div id="sr"></div>`;
+  loadSales();
+}
+async function loadSales() {
+  try {
+    const r = await api('/api/sales/daily?date=' + $('#sd').value);
+    $('#sr').innerHTML = `<div class="big">${money(r.totalSales)}</div><p>${r.billCount} finalized bill(s) on ${r.date}</p>`;
+  } catch (e) { say(e.message, false); }
+}
+
+pageDashboard();
+</script>
+</body>
+</html>
